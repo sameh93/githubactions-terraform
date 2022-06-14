@@ -1,9 +1,6 @@
 name: 'Terraform Test'
 
 on:
-  push:
-    branches:
-    - "test"
   pull_request:
     branches:    
       - test
@@ -15,7 +12,7 @@ on:
 
 jobs:
   terraform:
-    name: 'Terraform Plan'
+    name: 'Init'
     runs-on: ubuntu-latest
     #environment: production
 
