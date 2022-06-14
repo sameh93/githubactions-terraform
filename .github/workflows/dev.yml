@@ -112,6 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: tf_plan
     environment: test
+    if: github.event.pull_request.merged == 'true'
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -121,4 +122,5 @@ jobs:
     steps:
     - name: Terraform Apply
       if: github.event.pull_request.merged == 'true'
+      working-directory: 'terraform'
       run: terraform apply -auto-approve -input=false
