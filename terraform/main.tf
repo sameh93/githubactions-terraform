@@ -9,7 +9,7 @@ terraform {
  backend "s3" {
     bucket = "samen-github-actions"
     key    = "tfstate/tfstate.tf"
-    region = "east-us-1"
+    region = "us-east-1"
    }
 }
 
