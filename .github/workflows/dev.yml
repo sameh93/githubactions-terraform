@@ -3,8 +3,10 @@ name: 'Terraform Dev'
 on:
   push:
     branches:
-    - "dev"
+    - "test"
   pull_request:
+    branches:    
+      - test
 
 #permissions:
 #  contents: read
