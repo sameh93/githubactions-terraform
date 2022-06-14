@@ -8,6 +8,83 @@ on:
       - closed
 
 jobs:
+  tf_plan:
+    name: Terraform Plan
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      env:
+        REGION: 'us-east-1'
+      with:
+        aws-access-key-id: ${{ secrets.Dev_ACCOUNT_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.Dev_ACCOUNT_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      id: init
+      working-directory: 'terraform'
+      run: terraform init
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      id: fmt
+      working-directory: 'terraform'
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      id: validate
+      working-directory: 'terraform'
+      run: terraform validate -no-color
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'pull_request'
+      working-directory: 'terraform'
+      run: terraform plan -no-color -input=false
+      continue-on-error: true
+
+    - name: Update Pull Request
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        script: |
+          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+          <details><summary>Show Plan</summary>
+
+          \`\`\`\n
+          ${process.env.PLAN}
+          \`\`\`
+
+          </details>
+
+          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+      
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
