@@ -10,7 +10,6 @@ on:
 jobs:
   tf_plan:
     name: Terraform Plan
-    needs: terraform
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repo
@@ -84,7 +83,7 @@ jobs:
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'
       run: exit 1
-      
+
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
