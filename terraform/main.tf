@@ -16,7 +16,7 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 }
-
+/*
 resource "aws_instance" "main_ec2" {
   count                       = 1
   ami                         = "ami-0022f774911c1d690"
@@ -25,3 +25,4 @@ resource "aws_instance" "main_ec2" {
   associate_public_ip_address = "true"
   vpc_security_group_ids      = ["sg-0d0f4148b2d8565a9"]
 }
+*/
