@@ -120,6 +120,10 @@ jobs:
         shell: bash
 
     steps:
+    - name: Terraform Init
+      id: init
+      working-directory: 'terraform'
+      run: terraform init
     - name: Terraform Apply
       if: github.event.pull_request.merged == 'true'
       working-directory: 'terraform'
