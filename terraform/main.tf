@@ -1,16 +1,16 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~>3.27"
     }
   }
-  
- backend "s3" {
+
+  backend "s3" {
     bucket = "samen-github-actions"
     key    = "tfstate/tfstate.tf"
     region = "us-east-1"
-   }
+  }
 }
 
 provider "aws" {
