@@ -26,6 +26,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    # Put your CodeQL code here ref: https://github.com/github/codeql-action
     - name: Hello Test
       run: echo "hello Test"
 
@@ -106,6 +107,39 @@ jobs:
       if: steps.plan.outcome == 'failure'
       run: exit 1
 
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    needs: tf_plan
+    environment: test
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      env:
+        REGION: 'us-east-1'
+      with:
+        #role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
+        aws-access-key-id: ${{ secrets.Test_ACCOUNT_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.Test_ACCOUNT_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      
+    - name: Terraform Init
+      id: init
+      working-directory: 'terraform'
+      run: terraform init
+
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      working-directory: 'terraform'
       run: terraform apply -auto-approve -input=false
